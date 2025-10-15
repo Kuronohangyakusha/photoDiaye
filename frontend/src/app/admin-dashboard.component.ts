@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { StatisticsService, Statistics } from './statistics.service';
+import { ArticleService } from './article.service';
 import { HttpClientModule } from '@angular/common/http';
 
 interface AdminStatistics {
@@ -11,6 +12,19 @@ interface AdminStatistics {
   totalVues: number;
   totalReports?: number;
   misAJourLe: string;
+}
+
+interface Article {
+  id: string;
+  titre: string;
+  prix: number;
+  statut: string;
+  publieLe: string;
+  vendeur: {
+    id: string;
+    nom?: string;
+    telephone: string;
+  };
 }
 
 @Component({
@@ -25,10 +39,14 @@ export class AdminDashboardComponent implements OnInit {
   isLoading: boolean = true;
   errorMessage: string = '';
   activeSection: string = 'dashboard';
+  pendingArticles: Article[] = [];
+  allArticles: Article[] = [];
+  articlesLoading: boolean = false;
 
   constructor(
     private authService: AuthService,
     private statisticsService: StatisticsService,
+    private articleService: ArticleService,
     private router: Router
   ) {}
 
@@ -98,9 +116,57 @@ export class AdminDashboardComponent implements OnInit {
 
   setActiveSection(section: string): void {
     this.activeSection = section;
+    if (section === 'articles') {
+      this.loadArticles();
+    }
   }
 
   isActiveSection(section: string): boolean {
     return this.activeSection === section;
+  }
+
+  loadArticles(): void {
+    this.articlesLoading = true;
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    this.articleService.getAllPending(token).subscribe({
+      next: (articles: Article[]) => {
+        this.pendingArticles = articles;
+        this.articlesLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Erreur lors du chargement des articles en attente:', error);
+        this.articlesLoading = false;
+      }
+    });
+  }
+
+  approveArticle(articleId: string): void {
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    this.articleService.approveArticle(articleId, token).subscribe({
+      next: () => {
+        this.pendingArticles = this.pendingArticles.filter(article => article.id !== articleId);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de l\'approbation:', error);
+      }
+    });
+  }
+
+  rejectArticle(articleId: string): void {
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    this.articleService.rejectArticle(articleId, token).subscribe({
+      next: () => {
+        this.pendingArticles = this.pendingArticles.filter(article => article.id !== articleId);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors du rejet:', error);
+      }
+    });
   }
 }

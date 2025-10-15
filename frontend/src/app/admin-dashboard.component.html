@@ -104,8 +104,28 @@
       <!-- Articles Section -->
       <div *ngIf="isActiveSection('articles')" class="admin-sections">
         <div class="section-card">
-          <h3>Gestion des Articles</h3>
-          <p>Fonctionnalité à implémenter : Liste de tous les articles, modération, suppression en masse.</p>
+          <h3>Articles en attente de validation</h3>
+          <div *ngIf="articlesLoading" class="loading">
+            <p>Chargement des articles...</p>
+          </div>
+          <div *ngIf="!articlesLoading && pendingArticles.length === 0" class="no-articles">
+            <p>Aucun article en attente de validation.</p>
+          </div>
+          <div *ngIf="!articlesLoading && pendingArticles.length > 0" class="articles-list">
+            <div *ngFor="let article of pendingArticles" class="article-item">
+              <div class="article-info">
+                <h4>{{ article.titre }}</h4>
+                <p><strong>Prix:</strong> {{ article.prix }} FCFA</p>
+                <p><strong>Vendeur:</strong> {{ article.vendeur.nom || 'N/A' }} ({{ article.vendeur.telephone }})</p>
+                <p><strong>Publié le:</strong> {{ article.publieLe | date:'dd/MM/yyyy HH:mm' }}</p>
+                <p><strong>Statut:</strong> <span class="status-pending">{{ article.statut }}</span></p>
+              </div>
+              <div class="article-actions">
+                <button class="btn-approve" (click)="approveArticle(article.id)">✅ Approuver</button>
+                <button class="btn-reject" (click)="rejectArticle(article.id)">❌ Rejeter</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

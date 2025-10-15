@@ -15,10 +15,12 @@ enum Role {
 }
 
 enum StatutArticle {
+  EN_ATTENTE
   ACTIF
   VENDU
   EXPIRE
   SUPPRIME
+  REFUSE
 }
 
 model Utilisateur {
@@ -52,7 +54,7 @@ model Article {
   categorie          String?
   urlImage           String          // chemin ou URL de l'image
   photoPriseAvecApp  Boolean         @default(true) // doit toujours être vrai
-  statut             StatutArticle   @default(ACTIF)
+  statut             StatutArticle   @default(EN_ATTENTE)
   publieLe           DateTime        @default(now())
   expireLe           DateTime        // utilisé pour suppression automatique après 7 jours
   supprimeLe         DateTime?

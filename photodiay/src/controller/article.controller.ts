@@ -196,4 +196,78 @@ export class ArticleController {
     const article = await articleService.incrementVues(id);
     res.json(article);
   }
+
+  async getAllPending(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const articles = await articleService.getAllPending();
+      res.json(articles);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des articles en attente:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async getAllForAdmin(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const articles = await articleService.getAllForAdmin();
+      res.json(articles);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des articles pour admin:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async approveArticle(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const id = req.params.id;
+      if (!id) {
+        return res.status(400).json({ error: "ID requis" });
+      }
+
+      const article = await articleService.approveArticle(id);
+      res.json(article);
+    } catch (error) {
+      console.error('Erreur lors de l\'approbation d\'article:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async rejectArticle(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const id = req.params.id;
+      if (!id) {
+        return res.status(400).json({ error: "ID requis" });
+      }
+
+      const article = await articleService.rejectArticle(id);
+      res.json(article);
+    } catch (error) {
+      console.error('Erreur lors du rejet d\'article:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
 }

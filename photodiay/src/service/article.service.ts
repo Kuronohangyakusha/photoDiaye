@@ -20,7 +20,7 @@ export class ArticleService {
     const articleData = {
       ...data,
       expireLe,
-      statut: "ACTIF"
+      statut: "EN_ATTENTE"
     };
 
     return articleRepo.create(articleData);
@@ -48,5 +48,21 @@ export class ArticleService {
 
   async incrementVues(articleId: string) {
     return articleRepo.incrementVues(articleId);
+  }
+
+  async getAllPending() {
+    return articleRepo.findAllPending();
+  }
+
+  async getAllForAdmin() {
+    return articleRepo.findAllForAdmin();
+  }
+
+  async approveArticle(id: string) {
+    return articleRepo.approveArticle(id);
+  }
+
+  async rejectArticle(id: string) {
+    return articleRepo.rejectArticle(id);
   }
 }

@@ -104,4 +104,28 @@ export class ArticleService {
       }
     });
   }
+
+  getAllPending(token: string): Observable<Article[]> {
+    return this.http.get<Article[]>('http://localhost:3000/api/admin/articles/pending', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
+
+  approveArticle(articleId: string, token: string): Observable<Article> {
+    return this.http.put<Article>(`http://localhost:3000/api/admin/articles/${articleId}/approve`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
+
+  rejectArticle(articleId: string, token: string): Observable<Article> {
+    return this.http.put<Article>(`http://localhost:3000/api/admin/articles/${articleId}/reject`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
 }

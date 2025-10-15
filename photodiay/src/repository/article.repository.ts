@@ -7,6 +7,22 @@ export class ArticleRepository {
 
   async findAll() {
     return prisma.article.findMany({
+      where: { statut: "ACTIF" },
+      include: { vendeur: true },
+      orderBy: { publieLe: "desc" },
+    });
+  }
+
+  async findAllPending() {
+    return prisma.article.findMany({
+      where: { statut: "EN_ATTENTE" },
+      include: { vendeur: true },
+      orderBy: { publieLe: "desc" },
+    });
+  }
+
+  async findAllForAdmin() {
+    return prisma.article.findMany({
       include: { vendeur: true },
       orderBy: { publieLe: "desc" },
     });
@@ -49,6 +65,20 @@ export class ArticleRepository {
     return prisma.article.update({
       where: { id: articleId },
       data: { nombreVues: { increment: 1 } },
+    });
+  }
+
+  async approveArticle(id: string) {
+    return prisma.article.update({
+      where: { id },
+      data: { statut: "ACTIF" },
+    });
+  }
+
+  async rejectArticle(id: string) {
+    return prisma.article.update({
+      where: { id },
+      data: { statut: "REFUSE" },
     });
   }
 }

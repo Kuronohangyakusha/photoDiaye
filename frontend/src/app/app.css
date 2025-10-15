@@ -1,0 +1,20 @@
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}
+
+router-outlet {
+  display: block;
+  margin-top: 80px; /* Adjust based on header height */
+}
