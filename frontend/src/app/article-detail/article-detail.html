@@ -1,0 +1,84 @@
+<div class="article-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    <p>Chargement de l'article...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="error">
+    <p>{{ errorMessage }}</p>
+    <button class="btn-back" (click)="goBack()">Retour à l'accueil</button>
+  </div>
+
+  <!-- Article Detail -->
+  <div *ngIf="article && !isLoading" class="article-detail">
+    <!-- Back Button -->
+    <div class="back-button">
+      <button class="btn-back" (click)="goBack()">← Retour</button>
+    </div>
+
+    <!-- Article Header -->
+    <div class="article-header">
+      <h1>{{ article.titre }}</h1>
+      <div class="article-meta">
+        <span class="price">{{ formatPrice(article.prix) }}</span>
+        <span class="category" *ngIf="article.categorie">{{ article.categorie }}</span>
+      </div>
+    </div>
+
+    <!-- Article Image -->
+    <div class="article-image">
+      <img [src]="article.urlImage" [alt]="article.titre" (error)="$event.target.src='https://via.placeholder.com/600x400?text=Image+non+disponible'">
+    </div>
+
+    <!-- Article Content -->
+    <div class="article-content">
+      <!-- Description -->
+      <div class="description-section" *ngIf="article.description">
+        <h3>Description</h3>
+        <p>{{ article.description }}</p>
+      </div>
+
+      <!-- Details -->
+      <div class="details-section">
+        <h3>Détails</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="label">Prix:</span>
+            <span class="value">{{ formatPrice(article.prix) }}</span>
+          </div>
+          <div class="detail-item" *ngIf="article.categorie">
+            <span class="label">Catégorie:</span>
+            <span class="value">{{ article.categorie }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Statut:</span>
+            <span class="value status" [class]="'status-' + article.statut.toLowerCase()">{{ article.statut }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Publié le:</span>
+            <span class="value">{{ article.publieLe | date:'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Nombre de vues:</span>
+            <span class="value">{{ article.nombreVues }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seller Information -->
+      <div class="seller-section">
+        <h3>Informations du vendeur</h3>
+        <div class="seller-info">
+          <div class="seller-details">
+            <p><strong>Nom:</strong> {{ article.vendeur.nom || 'Non spécifié' }}</p>
+            <p><strong>Téléphone:</strong> {{ article.vendeur.telephone }}</p>
+          </div>
+          <div class="seller-actions">
+            <button class="btn-contact" (click)="contactSeller()">📞 Contacter le vendeur</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

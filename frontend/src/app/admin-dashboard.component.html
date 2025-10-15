@@ -133,7 +133,53 @@
       <div *ngIf="isActiveSection('users')" class="admin-sections">
         <div class="section-card">
           <h3>Gestion des Utilisateurs</h3>
-          <p>Fonctionnalité à implémenter : Liste des utilisateurs, gestion des rôles, statistiques par utilisateur.</p>
+          <div class="users-stats">
+            <p><strong>Total utilisateurs:</strong> {{ totalUsers }}</p>
+          </div>
+
+          <div *ngIf="usersLoading" class="loading">
+            <p>Chargement des utilisateurs...</p>
+          </div>
+
+          <div *ngIf="!usersLoading && users.length === 0" class="no-users">
+            <p>Aucun utilisateur trouvé.</p>
+          </div>
+
+          <div *ngIf="!usersLoading && users.length > 0" class="users-list">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Rôle</th>
+                  <th>Date d'inscription</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of users">
+                  <td>{{ user.nom || 'N/A' }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.telephone }}</td>
+                  <td><span class="role-badge" [class]="'role-' + user.role.toLowerCase()">{{ getRoleLabel(user.role) }}</span></td>
+                  <td>{{ user.creeLe | date:'dd/MM/yyyy' }}</td>
+                  <td class="actions">
+                    <button class="btn-delete" (click)="deleteUser(user.id)">🗑️ Supprimer</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="pagination" *ngIf="totalPages > 1">
+              <button class="btn-page" (click)="changeUserPage(currentPage - 1)" [disabled]="currentPage === 1">Précédent</button>
+              <span *ngFor="let page of [].constructor(totalPages); let i = index">
+                <button class="btn-page" [class.active]="i + 1 === currentPage" (click)="changeUserPage(i + 1)">{{ i + 1 }}</button>
+              </span>
+              <button class="btn-page" (click)="changeUserPage(currentPage + 1)" [disabled]="currentPage === totalPages">Suivant</button>
+            </div>
+          </div>
         </div>
       </div>
 

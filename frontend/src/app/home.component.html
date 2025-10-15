@@ -99,7 +99,7 @@
   </header>
 
   <main class="articles-grid">
-    <div *ngFor="let article of paginatedArticles" class="article-card">
+    <div *ngFor="let article of paginatedArticles" class="article-card" [routerLink]="['/article', article.id]">
       <div class="article-image">
         <img [src]="article.urlImage" [alt]="article.titre" loading="lazy">
       </div>
@@ -117,6 +117,7 @@
         <div class="article-date">
           Publié le {{ article.publieLe | date:'dd/MM/yyyy' }}
         </div>
+        <button class="detail-btn" (click)="$event.stopPropagation(); goToDetail(article.id)">Détail</button>
       </div>
     </div>
   </main>

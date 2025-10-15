@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ArticleService, Article } from './article.service';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -19,7 +20,7 @@ export class HomeComponent implements OnInit {
 
   // Pagination
   currentPage: number = 1;
-  itemsPerPage: number = 5;
+  itemsPerPage: number = 6;
   totalPages: number = 1;
 
   // Advanced Search
@@ -226,5 +227,9 @@ export class HomeComponent implements OnInit {
       style: 'currency',
       currency: 'XOF'
     }).format(price);
+  }
+
+  goToDetail(articleId: string): void {
+    this.router.navigate(['/article', articleId]);
   }
 }

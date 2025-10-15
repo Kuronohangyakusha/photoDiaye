@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { StatisticsService, Statistics } from './statistics.service';
 import { ArticleService } from './article.service';
+import { UserService, User, UsersResponse } from './user.service';
 import { HttpClientModule } from '@angular/common/http';
 
 interface AdminStatistics {
@@ -42,11 +43,17 @@ export class AdminDashboardComponent implements OnInit {
   pendingArticles: Article[] = [];
   allArticles: Article[] = [];
   articlesLoading: boolean = false;
+  users: User[] = [];
+  usersLoading: boolean = false;
+  currentPage: number = 1;
+  totalPages: number = 1;
+  totalUsers: number = 0;
 
   constructor(
     private authService: AuthService,
     private statisticsService: StatisticsService,
     private articleService: ArticleService,
+    private userService: UserService,
     private router: Router
   ) {}
 
@@ -118,6 +125,8 @@ export class AdminDashboardComponent implements OnInit {
     this.activeSection = section;
     if (section === 'articles') {
       this.loadArticles();
+    } else if (section === 'users') {
+      this.loadUsers();
     }
   }
 
@@ -168,5 +177,54 @@ export class AdminDashboardComponent implements OnInit {
         console.error('Erreur lors du rejet:', error);
       }
     });
+  }
+
+  loadUsers(): void {
+    this.usersLoading = true;
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    this.userService.getAllUsers(this.currentPage, 10).subscribe({
+      next: (response: UsersResponse) => {
+        this.users = response.utilisateurs;
+        this.totalPages = response.pagination.totalPages;
+        this.totalUsers = response.pagination.total;
+        this.usersLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Erreur lors du chargement des utilisateurs:', error);
+        this.usersLoading = false;
+      }
+    });
+  }
+
+  changeUserPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.loadUsers();
+    }
+  }
+
+  deleteUser(userId: string): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+      this.userService.deleteUser(userId).subscribe({
+        next: () => {
+          this.users = this.users.filter(user => user.id !== userId);
+          this.totalUsers--;
+        },
+        error: (error: any) => {
+          console.error('Erreur lors de la suppression:', error);
+        }
+      });
+    }
+  }
+
+  getRoleLabel(role: string): string {
+    switch (role) {
+      case 'ADMIN': return 'Administrateur';
+      case 'VENDEUR': return 'Vendeur';
+      case 'CLIENT': return 'Client';
+      default: return role;
+    }
   }
 }

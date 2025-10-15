@@ -4,6 +4,7 @@ import { RegisterSellerComponent } from './register-seller.component';
 import { LoginComponent } from './login.component';
 import { SellerDashboardComponent } from './seller-dashboard.component';
 import { AdminDashboardComponent } from './admin-dashboard.component';
+import { ArticleDetail } from './article-detail/article-detail';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'seller-dashboard', component: SellerDashboardComponent },
   { path: 'admin-dashboard', component: AdminDashboardComponent },
+  { path: 'article/:id', component: ArticleDetail },
   { path: '**', redirectTo: '' }
 ];

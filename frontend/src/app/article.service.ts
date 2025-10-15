@@ -105,6 +105,10 @@ export class ArticleService {
     });
   }
 
+  getArticleById(id: string): Observable<Article> {
+    return this.http.get<Article>(`${this.apiUrl}/${id}`);
+  }
+
   getAllPending(token: string): Observable<Article[]> {
     return this.http.get<Article[]>('http://localhost:3000/api/admin/articles/pending', {
       headers: {
