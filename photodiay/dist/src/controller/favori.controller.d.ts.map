@@ -1,0 +1,1 @@
+{"version":3,"file":"favori.controller.d.ts","sourceRoot":"","sources":["../../../src/controller/favori.controller.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAKjD,qBAAa,gBAAgB;IACrB,SAAS,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ;IAKrC,gBAAgB,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ;IAS5C,YAAY,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ;CAS/C"}

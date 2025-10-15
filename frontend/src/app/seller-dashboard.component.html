@@ -1,0 +1,212 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>🏪 Mon Espace Vendeur</h1>
+      <p>Gérez vos articles et votre boutique</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="goHome()">🏠 Accueil</button>
+      <button class="btn btn-outline" (click)="logout()">🚪 Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="dashboard-content">
+    <!-- Section Actions -->
+    <div class="actions-section">
+      <button
+        class="btn btn-primary create-btn"
+        (click)="toggleCreateForm()"
+      >
+        <span *ngIf="!showCreateForm">➕ Créer un article</span>
+        <span *ngIf="showCreateForm">✖ Fermer</span>
+      </button>
+    </div>
+
+    <!-- Formulaire de création/modification d'article -->
+    <div *ngIf="showCreateForm || showEditForm" class="create-form-card">
+      <h3>{{ showEditForm ? '✏️ Modifier l\'article' : '📝 Créer un nouvel article' }}</h3>
+      <form (ngSubmit)="onSubmitArticle()" class="article-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="titre">Titre *</label>
+            <input
+              id="titre"
+              type="text"
+              [(ngModel)]="newArticle.titre"
+              name="titre"
+              placeholder="Titre de l'article"
+              required
+              class="form-input"
+            >
+          </div>
+          <div class="form-group">
+            <label for="categorie">Catégorie</label>
+            <select
+              id="categorie"
+              [(ngModel)]="newArticle.categorie"
+              name="categorie"
+              class="form-input"
+            >
+              <option value="">Sélectionner une catégorie</option>
+              <option value="Électronique">Électronique</option>
+              <option value="Véhicules">Véhicules</option>
+              <option value="Immobilier">Immobilier</option>
+              <option value="Vêtements">Vêtements</option>
+              <option value="Maison">Maison</option>
+              <option value="Loisirs">Loisirs</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            [(ngModel)]="newArticle.description"
+            name="description"
+            placeholder="Description détaillée de l'article"
+            rows="3"
+            class="form-input"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prix">Prix (FCFA) *</label>
+            <input
+              id="prix"
+              type="number"
+              [(ngModel)]="newArticle.prix"
+              name="prix"
+              placeholder="0"
+              min="0"
+              required
+              class="form-input"
+            >
+          </div>
+          <div class="form-group">
+            <label>Photo de l'article *</label>
+            <div class="image-upload-section">
+              <div class="image-preview" *ngIf="selectedImagePreview">
+                <img [src]="selectedImagePreview" alt="Aperçu">
+              </div>
+              <div class="upload-buttons">
+                <button
+                  type="button"
+                  (click)="openCamera()"
+                  class="btn btn-camera"
+                  title="Photographiez directement le produit"
+                >
+                  📷 Photographier le produit
+                </button>
+              </div>
+              <small class="form-hint">
+                Photographiez ou capturez directement le produit • Max: 5MB • Photo obligatoire
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="success-message" *ngIf="successMessage">
+          {{ successMessage }}
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            (click)="showEditForm ? cancelEdit() : toggleCreateForm()"
+            class="btn btn-secondary"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="isLoading">{{ showEditForm ? '⏳ Modification...' : '⏳ Création...' }}</span>
+            <span *ngIf="!isLoading">{{ showEditForm ? '✅ Modifier l\'article' : '✅ Créer l\'article' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Liste des articles -->
+    <div class="articles-section">
+      <h3>📦 Mes Articles ({{ userArticles.length }})</h3>
+
+      <div *ngIf="userArticles.length === 0" class="no-articles">
+        <p>Vous n'avez pas encore d'articles. Créez votre premier article !</p>
+      </div>
+
+      <div *ngIf="filteredArticles.length > 0" class="articles-grid">
+        <div *ngFor="let article of paginatedArticles" class="article-card">
+          <div class="article-image">
+            <img [src]="article.urlImage" [alt]="article.titre" loading="lazy">
+          </div>
+          <div class="article-content">
+            <h4 class="article-title">{{ article.titre }}</h4>
+            <p class="article-description" *ngIf="article.description">{{ article.description }}</p>
+            <div class="article-meta">
+              <span class="article-price">{{ formatPrice(article.prix) }}</span>
+              <span class="article-category" *ngIf="article.categorie">{{ article.categorie }}</span>
+            </div>
+            <div class="article-stats">
+              <span class="article-views">👁 {{ article.nombreVues }} vues</span>
+              <span class="article-status" [class]="'status-' + article.statut.toLowerCase()">
+                {{ article.statut === 'ACTIF' ? '✅ Actif' : article.statut === 'VENDU' ? '💰 Vendu' : '⏸ Expiré' }}
+              </span>
+            </div>
+            <div class="article-date">
+              Publié le {{ article.publieLe | date:'dd/MM/yyyy' }}
+            </div>
+          </div>
+          <div class="article-actions">
+            <button class="btn btn-small btn-edit" (click)="editArticle(article)">✏️ Modifier</button>
+            <button class="btn btn-small btn-delete" (click)="deleteArticle(article)">🗑️ Supprimer</button>
+          </div>
+        </div>
+ 
+        <!-- Pagination -->
+        <div *ngIf="totalPages > 1" class="pagination">
+          <button
+            class="page-btn"
+            [disabled]="currentPage === 1"
+            (click)="previousPage()"
+          >
+            ‹ Précédent
+          </button>
+ 
+          <button
+            *ngFor="let page of pageNumbers"
+            class="page-btn"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+ 
+          <button
+            class="page-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="nextPage()"
+          >
+            Suivant ›
+          </button>
+        </div>
+ 
+        <div class="pagination-info" *ngIf="filteredArticles.length > 0">
+          <p>
+            Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à
+            {{ getMin(currentPage * itemsPerPage, filteredArticles.length) }}
+            sur {{ filteredArticles.length }} articles
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

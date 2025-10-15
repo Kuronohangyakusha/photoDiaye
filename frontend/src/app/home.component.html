@@ -1,0 +1,163 @@
+<div class="home-container">
+  <header class="header">
+    <div class="header-top">
+      <h1>PhotoDiay - Articles Disponibles</h1>
+      <div class="header-actions">
+        <button class="action-btn sell-btn" (click)="goToSell()">
+          🛒 Vendre un article
+        </button>
+        <button class="action-btn login-btn" (click)="goToLogin()">
+          🔐 Connexion
+        </button>
+      </div>
+    </div>
+
+    <!-- Advanced Search Section -->
+    <div class="search-section">
+      <div class="search-container">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+          placeholder="Rechercher par titre ou description..."
+          class="search-input"
+        >
+        <button class="search-btn" (click)="onSearch()">🔍</button>
+      </div>
+
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="category-select">Catégorie:</label>
+          <select
+            id="category-select"
+            [(ngModel)]="selectedCategory"
+            (change)="onCategoryChange()"
+            class="filter-select"
+          >
+            <option value="">Toutes les catégories</option>
+            <option *ngFor="let category of availableCategories" [value]="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="min-price">Prix min:</label>
+          <input
+            id="min-price"
+            type="number"
+            [(ngModel)]="minPrice"
+            (input)="onPriceFilter()"
+            placeholder="0"
+            class="price-input"
+          >
+        </div>
+
+        <div class="filter-group">
+          <label for="max-price">Prix max:</label>
+          <input
+            id="max-price"
+            type="number"
+            [(ngModel)]="maxPrice"
+            (input)="onPriceFilter()"
+            placeholder="∞"
+            class="price-input"
+          >
+        </div>
+
+        <div class="filter-group">
+          <label for="sort-select">Trier par:</label>
+          <select
+            id="sort-select"
+            [(ngModel)]="sortBy"
+            (change)="onSortChange()"
+            class="filter-select"
+          >
+            <option value="publieLe">Date de publication</option>
+            <option value="prix">Prix</option>
+            <option value="nombreVues">Nombre de vues</option>
+            <option value="titre">Titre</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="order-select">Ordre:</label>
+          <select
+            id="order-select"
+            [(ngModel)]="sortOrder"
+            (change)="onSortChange()"
+            class="filter-select"
+          >
+            <option value="desc">Décroissant</option>
+            <option value="asc">Croissant</option>
+          </select>
+        </div>
+
+        <button class="clear-btn" (click)="clearFilters()">🗑️ Effacer</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="articles-grid">
+    <div *ngFor="let article of paginatedArticles" class="article-card">
+      <div class="article-image">
+        <img [src]="article.urlImage" [alt]="article.titre" loading="lazy">
+      </div>
+      <div class="article-content">
+        <h3 class="article-title">{{ article.titre }}</h3>
+        <p class="article-description" *ngIf="article.description">{{ article.description }}</p>
+        <div class="article-meta">
+          <span class="article-price">{{ formatPrice(article.prix) }}</span>
+          <span class="article-category" *ngIf="article.categorie">{{ article.categorie }}</span>
+        </div>
+        <div class="article-footer">
+          <span class="article-vendeur">Par: {{ article.vendeur.nom || 'Vendeur' }}</span>
+          <span class="article-views">👁 {{ article.nombreVues }} vues</span>
+        </div>
+        <div class="article-date">
+          Publié le {{ article.publieLe | date:'dd/MM/yyyy' }}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div *ngIf="filteredArticles.length === 0" class="no-results">
+    <p>Aucun article trouvé.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="pagination">
+    <button
+      class="page-btn"
+      [disabled]="currentPage === 1"
+      (click)="previousPage()"
+    >
+      ‹ Précédent
+    </button>
+
+    <button
+      *ngFor="let page of pageNumbers"
+      class="page-btn"
+      [class.active]="page === currentPage"
+      (click)="goToPage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      class="page-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="nextPage()"
+    >
+      Suivant ›
+    </button>
+  </div>
+
+  <div class="pagination-info" *ngIf="filteredArticles.length > 0">
+    <p>
+      Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à
+      {{ getMin(currentPage * itemsPerPage, filteredArticles.length) }}
+      sur {{ filteredArticles.length }} articles
+    </p>
+  </div>
+</div>

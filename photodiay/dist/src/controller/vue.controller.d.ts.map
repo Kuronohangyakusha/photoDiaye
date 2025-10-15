@@ -1,0 +1,1 @@
+{"version":3,"file":"vue.controller.d.ts","sourceRoot":"","sources":["../../../src/controller/vue.controller.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAKjD,qBAAa,aAAa;IAClB,MAAM,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ;IAKlC,YAAY,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ;CAQ/C"}

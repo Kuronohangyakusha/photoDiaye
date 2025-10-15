@@ -1,0 +1,119 @@
+ 
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"  
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VENDEUR
+  ACHETEUR
+  ADMIN
+}
+
+enum StatutArticle {
+  ACTIF
+  VENDU
+  EXPIRE
+  SUPPRIME
+}
+
+model Utilisateur {
+  id             String      @id @default(cuid())
+  email          String      @unique
+  motDePasse     String
+  nom            String?
+  telephone      String       
+  role           Role        @default(VENDEUR)
+  estVip         Boolean     @default(false)
+  vipExpireLe    DateTime?   
+  creeLe         DateTime    @default(now())
+  misAJourLe     DateTime    @updatedAt
+ 
+  articles       Article[]
+  vues           VueArticle[]
+  favoris        Favori[]
+  signalements   Signalement[]
+
+  @@map("utilisateurs")
+}
+
+model Article {
+  id                 String          @id @default(cuid())
+  vendeur            Utilisateur     @relation(fields: [vendeurId], references: [id])
+  vendeurId          String
+  vendeurTelephone   String          
+  titre              String
+  description        String?
+  prix               Float
+  categorie          String?
+  urlImage           String          // chemin ou URL de l'image
+  photoPriseAvecApp  Boolean         @default(true) // doit toujours être vrai
+  statut             StatutArticle   @default(ACTIF)
+  publieLe           DateTime        @default(now())
+  expireLe           DateTime        // utilisé pour suppression automatique après 7 jours
+  supprimeLe         DateTime?
+  nombreVues         Int             @default(0)
+  nombreInteractions Int             @default(0)
+
+ 
+  vues               VueArticle[]
+  favoris            Favori[]
+  signalements       Signalement[]
+
+  @@index([titre])
+  @@index([categorie])
+  @@index([statut])
+  @@map("articles")
+}
+
+model VueArticle {
+  id             String       @id @default(cuid())
+  article        Article       @relation(fields: [articleId], references: [id])
+  articleId      String
+  utilisateur    Utilisateur?  @relation(fields: [utilisateurId], references: [id])
+  utilisateurId  String?
+  ip             String?       // pour visiteurs non connectés
+  creeLe         DateTime      @default(now())
+
+  @@index([articleId])
+  @@map("vues_articles")
+}
+
+model Favori {
+  id             String       @id @default(cuid())
+  utilisateur    Utilisateur  @relation(fields: [utilisateurId], references: [id])
+  utilisateurId  String
+  article        Article      @relation(fields: [articleId], references: [id])
+  articleId      String
+  creeLe         DateTime     @default(now())
+
+  @@unique([utilisateurId, articleId])
+  @@map("favoris")
+}
+
+model Signalement {
+  id            String       @id @default(cuid())
+  article       Article      @relation(fields: [articleId], references: [id])
+  articleId     String
+  auteurId      String?
+  auteur        Utilisateur? @relation(fields: [auteurId], references: [id])
+  raison        String
+  description   String?
+  creeLe        DateTime     @default(now())
+
+  @@map("signalements")
+}
+
+model StatistiquesAdmin {
+  id                String   @id @default(cuid())
+  totalArticles     Int
+  totalUtilisateurs Int
+  totalVues         Int
+  misAJourLe        DateTime @updatedAt
+
+  @@map("statistiques_admin")
+}

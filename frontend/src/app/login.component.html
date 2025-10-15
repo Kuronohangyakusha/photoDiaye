@@ -1,0 +1,64 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>🔐 Connexion</h2>
+      <p>Connectez-vous à votre compte</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="loginData.email"
+          name="email"
+          placeholder="votre.email@example.com"
+          required
+          class="form-input"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="motDePasse">Mot de passe *</label>
+        <input
+          id="motDePasse"
+          type="password"
+          [(ngModel)]="loginData.motDePasse"
+          name="motDePasse"
+          placeholder="Votre mot de passe"
+          required
+          autocomplete="current-password"
+          class="form-input"
+        >
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="btn btn-secondary"
+          [disabled]="isLoading"
+        >
+          ← Retour
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="isLoading">⏳ Connexion...</span>
+          <span *ngIf="!isLoading">🔐 Se connecter</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="register-link">
+      <p>Pas encore de compte ? <a (click)="goToRegister()" class="register-link-text">Créer un compte vendeur</a></p>
+    </div>
+  </div>
+</div>

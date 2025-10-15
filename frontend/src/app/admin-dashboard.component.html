@@ -1,0 +1,137 @@
+<div class="admin-dashboard">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2>📊 Admin Panel</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li [class.active]="isActiveSection('dashboard')" (click)="setActiveSection('dashboard')">
+        <span>📈 Tableau de bord</span>
+      </li>
+      <li [class.active]="isActiveSection('articles')" (click)="setActiveSection('articles')">
+        <span>📦 Articles</span>
+      </li>
+      <li [class.active]="isActiveSection('users')" (click)="setActiveSection('users')">
+        <span>👥 Utilisateurs</span>
+      </li>
+      <li [class.active]="isActiveSection('reports')" (click)="setActiveSection('reports')">
+        <span>🚨 Signalements</span>
+      </li>
+      <li [class.active]="isActiveSection('settings')" (click)="setActiveSection('settings')">
+        <span>⚙️ Paramètres</span>
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">🚪 Déconnexion</button>
+      <button class="btn-home" (click)="goHome()">🏠 Accueil</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="dashboard-header">
+      <h1>Tableau de bord administrateur</h1>
+      <p>Bienvenue dans votre panneau d'administration</p>
+    </header>
+
+    <div class="dashboard-content">
+      <!-- Statistics Cards -->
+      <div class="stats-grid" *ngIf="!isLoading && statistics">
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-content">
+            <h3>{{ statistics.totalArticles }}</h3>
+            <p>Articles totaux</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-content">
+            <h3>{{ statistics.totalUtilisateurs }}</h3>
+            <p>Utilisateurs inscrits</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">👁️</div>
+          <div class="stat-content">
+            <h3>{{ statistics.totalVues }}</h3>
+            <p>Vues totales</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-content">
+            <h3>{{ statistics.misAJourLe | date:'dd/MM/yyyy' }}</h3>
+            <p>Dernière mise à jour</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading" *ngIf="isLoading">
+        <p>Chargement des statistiques...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error" *ngIf="errorMessage">
+        <p>{{ errorMessage }}</p>
+      </div>
+
+      <!-- Dashboard Section -->
+      <div *ngIf="isActiveSection('dashboard')" class="admin-sections">
+        <div class="section-card">
+          <h3>Actions rapides</h3>
+          <div class="quick-actions">
+            <button class="btn-action">📊 Générer rapport</button>
+            <button class="btn-action">🧹 Nettoyer données</button>
+            <button class="btn-action">📧 Envoyer notification</button>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Activité récente</h3>
+          <div class="recent-activity">
+            <p>🔄 Mise à jour des statistiques effectuée</p>
+            <p>👤 Nouveau vendeur inscrit</p>
+            <p>📦 Article supprimé automatiquement</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Articles Section -->
+      <div *ngIf="isActiveSection('articles')" class="admin-sections">
+        <div class="section-card">
+          <h3>Gestion des Articles</h3>
+          <p>Fonctionnalité à implémenter : Liste de tous les articles, modération, suppression en masse.</p>
+        </div>
+      </div>
+
+      <!-- Users Section -->
+      <div *ngIf="isActiveSection('users')" class="admin-sections">
+        <div class="section-card">
+          <h3>Gestion des Utilisateurs</h3>
+          <p>Fonctionnalité à implémenter : Liste des utilisateurs, gestion des rôles, statistiques par utilisateur.</p>
+        </div>
+      </div>
+
+      <!-- Reports Section -->
+      <div *ngIf="isActiveSection('reports')" class="admin-sections">
+        <div class="section-card">
+          <h3>Signalements</h3>
+          <p>Fonctionnalité à implémenter : Gestion des signalements d'articles, modération du contenu.</p>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div *ngIf="isActiveSection('settings')" class="admin-sections">
+        <div class="section-card">
+          <h3>Paramètres Système</h3>
+          <p>Fonctionnalité à implémenter : Configuration générale, paramètres de sécurité, maintenance.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,103 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h2>🛒 Devenir Vendeur</h2>
+      <p>Créez votre compte vendeur pour commencer à vendre vos articles</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="register-form">
+      <div class="form-group">
+        <label for="nom">Nom complet *</label>
+        <input
+          id="nom"
+          type="text"
+          [(ngModel)]="registerData.nom"
+          name="nom"
+          placeholder="Votre nom complet"
+          required
+          class="form-input"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="registerData.email"
+          name="email"
+          placeholder="votre.email@example.com"
+          required
+          class="form-input"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="telephone">Téléphone *</label>
+        <input
+          id="telephone"
+          type="tel"
+          [(ngModel)]="registerData.telephone"
+          name="telephone"
+          placeholder="+221771234567"
+          required
+          class="form-input"
+        >
+        <small class="form-hint">Format sénégalais : +221771234567 ou 771234567</small>
+      </div>
+
+      <div class="form-group">
+        <label for="motDePasse">Mot de passe *</label>
+        <input
+          id="motDePasse"
+          type="password"
+          [(ngModel)]="registerData.motDePasse"
+          name="motDePasse"
+          placeholder="Minimum 6 caractères"
+          required
+          class="form-input"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmer le mot de passe *</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          placeholder="Répétez votre mot de passe"
+          required
+          class="form-input"
+        >
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="success-message" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="btn btn-secondary"
+          [disabled]="isLoading"
+        >
+          ← Retour
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="isLoading">⏳ Création...</span>
+          <span *ngIf="!isLoading">✅ Créer mon compte</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
