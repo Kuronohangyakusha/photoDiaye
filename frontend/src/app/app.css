@@ -3,18 +3,23 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: white;
-  padding: 10px 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: var(--background-white);
+  padding: 12px 24px;
+  box-shadow: var(--shadow-light);
   z-index: 1000;
+  border-bottom: 1px solid var(--border-gray);
 }
 
 .logo {
-  height: 50px;
+  height: 70px;
   width: auto;
 }
 
-router-outlet {
+.main-content {
+  min-height: calc(100vh - 80px - 200px); /* Header height + footer height */
+  margin-top: 80px; /* Header height */
+}
+
+.main-content router-outlet {
   display: block;
-  margin-top: 80px; /* Adjust based on header height */
 }

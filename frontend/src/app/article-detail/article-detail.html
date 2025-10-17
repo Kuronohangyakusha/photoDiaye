@@ -21,9 +21,13 @@
     <div class="article-header">
       <h1>{{ article.titre }}</h1>
       <div class="article-meta">
-        <span class="price">{{ formatPrice(article.prix) }}</span>
         <span class="category" *ngIf="article.categorie">{{ article.categorie }}</span>
       </div>
+    </div>
+
+    <!-- Article Price -->
+    <div class="article-price">
+      <span class="price">{{ formatPrice(article.prix) }}</span>
     </div>
 
     <!-- Article Image -->
@@ -41,26 +45,26 @@
 
       <!-- Details -->
       <div class="details-section">
-        <h3>Détails</h3>
+        <h3>Détails de l'annonce</h3>
         <div class="details-grid">
           <div class="detail-item">
-            <span class="label">Prix:</span>
+            <span class="label">💰 Prix:</span>
             <span class="value">{{ formatPrice(article.prix) }}</span>
           </div>
           <div class="detail-item" *ngIf="article.categorie">
-            <span class="label">Catégorie:</span>
+            <span class="label">📂 Catégorie:</span>
             <span class="value">{{ article.categorie }}</span>
           </div>
           <div class="detail-item">
-            <span class="label">Statut:</span>
+            <span class="label">📊 Statut:</span>
             <span class="value status" [class]="'status-' + article.statut.toLowerCase()">{{ article.statut }}</span>
           </div>
           <div class="detail-item">
-            <span class="label">Publié le:</span>
+            <span class="label">📅 Date de publication:</span>
             <span class="value">{{ article.publieLe | date:'dd/MM/yyyy à HH:mm' }}</span>
           </div>
           <div class="detail-item">
-            <span class="label">Nombre de vues:</span>
+            <span class="label">👁️ Nombre de vues:</span>
             <span class="value">{{ article.nombreVues }}</span>
           </div>
         </div>
@@ -71,8 +75,8 @@
         <h3>Informations du vendeur</h3>
         <div class="seller-info">
           <div class="seller-details">
-            <p><strong>Nom:</strong> {{ article.vendeur.nom || 'Non spécifié' }}</p>
-            <p><strong>Téléphone:</strong> {{ article.vendeur.telephone }}</p>
+            <p><span class="icon">👤</span> <strong>{{ article.vendeur.nom || 'Non spécifié' }}</strong></p>
+            <p><span class="icon">📞</span> {{ article.vendeur.telephone }}</p>
           </div>
           <div class="seller-actions">
             <button class="btn-contact" (click)="contactSeller()">📞 Contacter le vendeur</button>

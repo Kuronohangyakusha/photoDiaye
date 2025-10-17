@@ -18,4 +18,8 @@ export class UtilisateurService {
   async delete(id: string) {
     return utilisateurRepo.delete(id);
   }
+
+  async getAdmins() {
+    return utilisateurRepo.findAdmins();
+  }
 }

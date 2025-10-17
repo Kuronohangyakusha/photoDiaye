@@ -14,6 +14,7 @@ export declare class ArticleRepository {
         supprimeLe: Date | null;
         nombreVues: number;
         nombreInteractions: number;
+        motifRejet: string | null;
         vendeurId: string;
     }>;
     findAll(): Promise<({
@@ -44,6 +45,69 @@ export declare class ArticleRepository {
         supprimeLe: Date | null;
         nombreVues: number;
         nombreInteractions: number;
+        motifRejet: string | null;
+        vendeurId: string;
+    })[]>;
+    findAllPending(): Promise<({
+        vendeur: {
+            id: string;
+            email: string;
+            motDePasse: string;
+            nom: string | null;
+            telephone: string;
+            role: import("@prisma/client").$Enums.Role;
+            estVip: boolean;
+            vipExpireLe: Date | null;
+            creeLe: Date;
+            misAJourLe: Date;
+        };
+    } & {
+        id: string;
+        vendeurTelephone: string;
+        titre: string;
+        description: string | null;
+        prix: number;
+        categorie: string | null;
+        urlImage: string;
+        photoPriseAvecApp: boolean;
+        statut: import("@prisma/client").$Enums.StatutArticle;
+        publieLe: Date;
+        expireLe: Date;
+        supprimeLe: Date | null;
+        nombreVues: number;
+        nombreInteractions: number;
+        motifRejet: string | null;
+        vendeurId: string;
+    })[]>;
+    findAllForAdmin(): Promise<({
+        vendeur: {
+            id: string;
+            email: string;
+            motDePasse: string;
+            nom: string | null;
+            telephone: string;
+            role: import("@prisma/client").$Enums.Role;
+            estVip: boolean;
+            vipExpireLe: Date | null;
+            creeLe: Date;
+            misAJourLe: Date;
+        };
+    } & {
+        id: string;
+        vendeurTelephone: string;
+        titre: string;
+        description: string | null;
+        prix: number;
+        categorie: string | null;
+        urlImage: string;
+        photoPriseAvecApp: boolean;
+        statut: import("@prisma/client").$Enums.StatutArticle;
+        publieLe: Date;
+        expireLe: Date;
+        supprimeLe: Date | null;
+        nombreVues: number;
+        nombreInteractions: number;
+        motifRejet: string | null;
         vendeurId: string;
     })[]>;
     findById(id: string): Promise<({
@@ -74,6 +138,7 @@ export declare class ArticleRepository {
         supprimeLe: Date | null;
         nombreVues: number;
         nombreInteractions: number;
+        motifRejet: string | null;
         vendeurId: string;
     }) | null>;
     findByVendeur(vendeurId: string): Promise<{
@@ -91,6 +156,7 @@ export declare class ArticleRepository {
         supprimeLe: Date | null;
         nombreVues: number;
         nombreInteractions: number;
+        motifRejet: string | null;
         vendeurId: string;
     }[]>;
     update(id: string, data: any): Promise<{
@@ -108,6 +174,7 @@ export declare class ArticleRepository {
         supprimeLe: Date | null;
         nombreVues: number;
         nombreInteractions: number;
+        motifRejet: string | null;
         vendeurId: string;
     }>;
     delete(id: string): Promise<{
@@ -125,6 +192,7 @@ export declare class ArticleRepository {
         supprimeLe: Date | null;
         nombreVues: number;
         nombreInteractions: number;
+        motifRejet: string | null;
         vendeurId: string;
     }>;
     incrementVues(articleId: string): Promise<{
@@ -142,6 +210,43 @@ export declare class ArticleRepository {
         supprimeLe: Date | null;
         nombreVues: number;
         nombreInteractions: number;
+        motifRejet: string | null;
+        vendeurId: string;
+    }>;
+    approveArticle(id: string): Promise<{
+        id: string;
+        vendeurTelephone: string;
+        titre: string;
+        description: string | null;
+        prix: number;
+        categorie: string | null;
+        urlImage: string;
+        photoPriseAvecApp: boolean;
+        statut: import("@prisma/client").$Enums.StatutArticle;
+        publieLe: Date;
+        expireLe: Date;
+        supprimeLe: Date | null;
+        nombreVues: number;
+        nombreInteractions: number;
+        motifRejet: string | null;
+        vendeurId: string;
+    }>;
+    rejectArticle(id: string, motifRejet: string): Promise<{
+        id: string;
+        vendeurTelephone: string;
+        titre: string;
+        description: string | null;
+        prix: number;
+        categorie: string | null;
+        urlImage: string;
+        photoPriseAvecApp: boolean;
+        statut: import("@prisma/client").$Enums.StatutArticle;
+        publieLe: Date;
+        expireLe: Date;
+        supprimeLe: Date | null;
+        nombreVues: number;
+        nombreInteractions: number;
+        motifRejet: string | null;
         vendeurId: string;
     }>;
 }

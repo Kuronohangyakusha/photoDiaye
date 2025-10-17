@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit {
   filteredArticles: Article[] = [];
   searchQuery: string = '';
 
-  // Pagination
+ 
   currentPage: number = 1;
   itemsPerPage: number = 6;
   totalPages: number = 1;

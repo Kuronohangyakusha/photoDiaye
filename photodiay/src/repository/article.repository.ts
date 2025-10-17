@@ -21,11 +21,38 @@ export class ArticleRepository {
     });
   }
 
-  async findAllForAdmin() {
+  async findAllForAdmin(limit: number = 10, offset: number = 0, search: string = '') {
+    const where: any = {};
+
+    if (search.trim()) {
+      where.OR = [
+        { titre: { contains: search.trim(), mode: 'insensitive' } },
+        { vendeur: { nom: { contains: search.trim(), mode: 'insensitive' } } },
+        { vendeur: { telephone: { contains: search.trim() } } }
+      ];
+    }
+
     return prisma.article.findMany({
+      where,
       include: { vendeur: true },
       orderBy: { publieLe: "desc" },
+      take: limit,
+      skip: offset,
     });
+  }
+
+  async countAllForAdmin(search: string = '') {
+    const where: any = {};
+
+    if (search.trim()) {
+      where.OR = [
+        { titre: { contains: search.trim(), mode: 'insensitive' } },
+        { vendeur: { nom: { contains: search.trim(), mode: 'insensitive' } } },
+        { vendeur: { telephone: { contains: search.trim() } } }
+      ];
+    }
+
+    return prisma.article.count({ where });
   }
 
   async findById(id: string) {
@@ -75,10 +102,58 @@ export class ArticleRepository {
     });
   }
 
-  async rejectArticle(id: string) {
+  async rejectArticle(id: string, motifRejet: string) {
     return prisma.article.update({
       where: { id },
-      data: { statut: "REFUSE" },
+      data: {
+        statut: "REFUSE",
+        motifRejet: motifRejet
+      },
+    });
+  }
+
+  async findExpiredArticles() {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    return prisma.article.findMany({
+      where: {
+        statut: "EN_ATTENTE",
+        publieLe: {
+          lte: sevenDaysAgo
+        }
+      },
+      include: { vendeur: true }
+    });
+  }
+
+  async markForDeletion(id: string) {
+    return prisma.article.update({
+      where: { id },
+      data: {
+        statut: "EXPIRE",
+        supprimeLe: new Date()
+      }
+    });
+  }
+
+  async confirmDeletion(id: string) {
+    return this.delete(id);
+  }
+
+  async deleteOldArticles(days: number = 7) {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    return prisma.article.deleteMany({
+      where: {
+        publieLe: {
+          lt: cutoffDate
+        },
+        statut: {
+          in: ['ACTIF', 'REFUSE', 'EXPIRE']
+        }
+      }
     });
   }
 }

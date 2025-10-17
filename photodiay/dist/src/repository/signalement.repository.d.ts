@@ -23,6 +23,7 @@ export declare class SignalementRepository {
             supprimeLe: Date | null;
             nombreVues: number;
             nombreInteractions: number;
+            motifRejet: string | null;
             vendeurId: string;
         };
         auteur: {

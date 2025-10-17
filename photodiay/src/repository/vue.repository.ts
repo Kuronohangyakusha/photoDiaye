@@ -13,6 +13,19 @@ export class VueArticleRepository {
     return prisma.vueArticle.findMany({ where: { articleId } });
   }
 
+  async findByArticleAndUser(articleId: string, utilisateurId?: string, ip?: string) {
+    const where: any = { articleId };
+    if (utilisateurId) {
+      where.utilisateurId = utilisateurId;
+    } else if (ip) {
+      where.ip = ip;
+    }
+    return prisma.vueArticle.findFirst({
+      where,
+      orderBy: { creeLe: 'desc' }
+    });
+  }
+
   async delete(id: string) {
     return prisma.vueArticle.delete({ where: { id } });
   }

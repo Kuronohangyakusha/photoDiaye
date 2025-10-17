@@ -45,6 +45,16 @@ export class ArticleDetail implements OnInit {
             : article.urlImage
         };
         this.isLoading = false;
+
+        // Incrementer les vues après le chargement de l'article
+        this.articleService.incrementViews(id).subscribe({
+          next: () => {
+            console.log('Vue incrémentée pour l\'article:', id);
+          },
+          error: (error) => {
+            console.error('Erreur lors de l\'incrémentation des vues:', error);
+          }
+        });
       },
       error: (error) => {
         console.error('Erreur lors du chargement de l\'article:', error);

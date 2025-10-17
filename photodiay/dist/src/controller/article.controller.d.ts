@@ -8,5 +8,9 @@ export declare class ArticleController {
     update(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     delete(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     incrementVues(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
+    getAllPending(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
+    getAllForAdmin(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
+    approveArticle(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
+    rejectArticle(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
 }
 //# sourceMappingURL=article.controller.d.ts.map

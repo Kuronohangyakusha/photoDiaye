@@ -6,6 +6,7 @@ import { VueController } from "./controller/vue.controller.js";
 import { FavoriController } from "./controller/favori.controller.js";
 import { SignalementController } from "./controller/signalement.controller.js";
 import { StatistiquesController } from "./controller/statistiques.controller.js";
+import { NotificationController } from "./controller/notification.controller.js";
 import { authenticate } from "./middlewares/auth.middleware.js";
 
 const router = Router();
@@ -18,6 +19,7 @@ const vueController = new VueController();
 const favoriController = new FavoriController();
 const signalementController = new SignalementController();
 const statsController = new StatistiquesController();
+const notificationController = new NotificationController();
 
 /* ================= AUTH ================= */
 router.post("/auth/register", (req, res) => authController.register(req, res));
@@ -44,6 +46,13 @@ router.get("/admin/articles", authenticate, (req, res) => articleController.getA
 router.put("/admin/articles/:id/approve", authenticate, (req, res) => articleController.approveArticle(req, res));
 router.put("/admin/articles/:id/reject", authenticate, (req, res) => articleController.rejectArticle(req, res));
 
+// Routes admin pour la gestion des articles expirés
+router.get("/admin/articles/expired", authenticate, (req, res) => articleController.getExpiredArticles(req, res));
+router.put("/admin/articles/:id/mark-deletion", authenticate, (req, res) => articleController.markArticleForDeletion(req, res));
+router.delete("/admin/articles/:id/confirm-deletion", authenticate, (req, res) => articleController.confirmArticleDeletion(req, res));
+router.post("/admin/articles/process-expired", authenticate, (req, res) => articleController.processExpiredArticles(req, res));
+router.post("/admin/articles/cleanup", authenticate, (req, res) => articleController.cleanupOldArticles(req, res));
+
 /* ================= VUES ================= */
 router.post("/vues", (req, res) => vueController.addVue(req, res));
 router.get("/vues/article/:articleId", (req, res) => vueController.getByArticle(req, res));
@@ -63,5 +72,13 @@ router.delete("/signalements/:id", authenticate, (req, res) => signalementContro
 router.get("/statistiques", authenticate, (req, res) => statsController.getLatest(req, res));
 router.post("/statistiques", authenticate, (req, res) => statsController.create(req, res));
 router.put("/statistiques/:id", authenticate, (req, res) => statsController.update(req, res));
+
+/* ================= NOTIFICATIONS ================= */
+router.get("/notifications/:utilisateurId", authenticate, (req, res) => notificationController.getByUtilisateur(req, res));
+router.get("/notifications/:utilisateurId/unread", authenticate, (req, res) => notificationController.getUnreadByUtilisateur(req, res));
+router.get("/notifications/:utilisateurId/unread-count", authenticate, (req, res) => notificationController.getUnreadCount(req, res));
+router.put("/notifications/:id/read", authenticate, (req, res) => notificationController.markAsRead(req, res));
+router.put("/notifications/:utilisateurId/read-all", authenticate, (req, res) => notificationController.markAllAsRead(req, res));
+router.delete("/notifications/:id", authenticate, (req, res) => notificationController.delete(req, res));
 
 export default router;

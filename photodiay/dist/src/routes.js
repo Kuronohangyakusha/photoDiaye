@@ -32,6 +32,11 @@ router.post("/articles", authenticate, (req, res) => articleController.create(re
 router.put("/articles/:id", authenticate, (req, res) => articleController.update(req, res));
 router.delete("/articles/:id", authenticate, (req, res) => articleController.delete(req, res));
 router.post("/articles/:id/vue", (req, res) => articleController.incrementVues(req, res));
+// Routes admin pour la validation
+router.get("/admin/articles/pending", authenticate, (req, res) => articleController.getAllPending(req, res));
+router.get("/admin/articles", authenticate, (req, res) => articleController.getAllForAdmin(req, res));
+router.put("/admin/articles/:id/approve", authenticate, (req, res) => articleController.approveArticle(req, res));
+router.put("/admin/articles/:id/reject", authenticate, (req, res) => articleController.rejectArticle(req, res));
 /* ================= VUES ================= */
 router.post("/vues", (req, res) => vueController.addVue(req, res));
 router.get("/vues/article/:articleId", (req, res) => vueController.getByArticle(req, res));

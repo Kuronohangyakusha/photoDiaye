@@ -13,5 +13,6 @@ export declare class VueService {
         articleId: string;
         utilisateurId: string | null;
     }[]>;
+    canIncrementView(articleId: string, utilisateurId?: string, ip?: string): Promise<boolean>;
 }
 //# sourceMappingURL=vue.service.d.ts.map

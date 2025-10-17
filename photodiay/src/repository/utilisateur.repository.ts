@@ -43,6 +43,35 @@ export class UtilisateurRepository {
   }
 
   async delete(id: string) {
-    return prisma.utilisateur.delete({ where: { id } });
+    return prisma.$transaction(async (tx) => {
+      // Delete related records first
+      await tx.vueArticle.deleteMany({ where: { utilisateurId: id } });
+      await tx.favori.deleteMany({ where: { utilisateurId: id } });
+      await tx.signalement.deleteMany({ where: { auteurId: id } });
+      await tx.notification.deleteMany({ where: { utilisateurId: id } });
+
+      // Delete articles by this user (cascade delete related records)
+      const userArticles = await tx.article.findMany({
+        where: { vendeurId: id },
+        select: { id: true }
+      });
+
+      for (const article of userArticles) {
+        await tx.vueArticle.deleteMany({ where: { articleId: article.id } });
+        await tx.favori.deleteMany({ where: { articleId: article.id } });
+        await tx.signalement.deleteMany({ where: { articleId: article.id } });
+      }
+
+      await tx.article.deleteMany({ where: { vendeurId: id } });
+
+      // Finally delete the user
+      return tx.utilisateur.delete({ where: { id } });
+    });
+  }
+
+  async findAdmins() {
+    return prisma.utilisateur.findMany({
+      where: { role: 'ADMIN' }
+    });
   }
 }

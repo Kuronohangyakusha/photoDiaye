@@ -22,6 +22,7 @@ export declare class VueArticleRepository {
             supprimeLe: Date | null;
             nombreVues: number;
             nombreInteractions: number;
+            motifRejet: string | null;
             vendeurId: string;
         };
     } & {
@@ -38,6 +39,13 @@ export declare class VueArticleRepository {
         articleId: string;
         utilisateurId: string | null;
     }[]>;
+    findByArticleAndUser(articleId: string, utilisateurId?: string, ip?: string): Promise<{
+        id: string;
+        creeLe: Date;
+        ip: string | null;
+        articleId: string;
+        utilisateurId: string | null;
+    } | null>;
     delete(id: string): Promise<{
         id: string;
         creeLe: Date;

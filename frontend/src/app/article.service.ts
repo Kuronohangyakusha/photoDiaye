@@ -109,6 +109,10 @@ export class ArticleService {
     return this.http.get<Article>(`${this.apiUrl}/${id}`);
   }
 
+  incrementViews(articleId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${articleId}/vue`, {});
+  }
+
   getAllPending(token: string): Observable<Article[]> {
     return this.http.get<Article[]>('http://localhost:3000/api/admin/articles/pending', {
       headers: {
@@ -125,8 +129,20 @@ export class ArticleService {
     });
   }
 
-  rejectArticle(articleId: string, token: string): Observable<Article> {
-    return this.http.put<Article>(`http://localhost:3000/api/admin/articles/${articleId}/reject`, {}, {
+  rejectArticle(articleId: string, token: string, motifRejet: string): Observable<Article> {
+    return this.http.put<Article>(`http://localhost:3000/api/admin/articles/${articleId}/reject`, { motifRejet }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
+
+  getAllForAdmin(token: string, page: number = 1, limit: number = 10, search: string = ''): Observable<{ articles: Article[]; pagination: { total: number; totalPages: number; currentPage: number; limit: number } }> {
+    let url = `http://localhost:3000/api/admin/articles?page=${page}&limit=${limit}`;
+    if (search.trim()) {
+      url += `&search=${encodeURIComponent(search.trim())}`;
+    }
+    return this.http.get<{ articles: Article[]; pagination: { total: number; totalPages: number; currentPage: number; limit: number } }>(url, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

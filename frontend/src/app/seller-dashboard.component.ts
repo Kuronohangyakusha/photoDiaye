@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ArticleService, Article } from './article.service';
 import { AuthService } from './auth.service';
+import { NotificationService, Notification } from './notification.service';
 import { HttpClientModule } from '@angular/common/http';
 
 interface CreateArticleData {
@@ -33,6 +34,11 @@ export class SellerDashboardComponent implements OnInit {
   successMessage: string = '';
   articleToEdit: Article | null = null;
 
+  // Notifications
+  notifications: Notification[] = [];
+  unreadCount: number = 0;
+  showNotifications: boolean = false;
+
   // Pagination
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -53,6 +59,7 @@ export class SellerDashboardComponent implements OnInit {
   constructor(
     private articleService: ArticleService,
     private authService: AuthService,
+    private notificationService: NotificationService,
     private router: Router
   ) {}
 
@@ -83,6 +90,7 @@ export class SellerDashboardComponent implements OnInit {
     }
 
     this.loadUserArticles();
+    this.loadNotifications();
   }
 
   loadUserArticles(): void {
@@ -251,33 +259,31 @@ export class SellerDashboardComponent implements OnInit {
   }
 
   deleteArticle(article: Article): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${article.titre}" ? Cette action est irréversible.`)) {
-      const token = this.authService.getToken();
-      if (!token) {
-        this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
-        return;
-      }
-
-      this.articleService.deleteArticle(article.id, token).subscribe({
-        next: () => {
-          this.successMessage = 'Article supprimé avec succès !';
-          this.loadUserArticles(); // Recharger la liste
-
-          // Effacer le message de succès après 3 secondes
-          setTimeout(() => {
-            this.successMessage = '';
-          }, 3000);
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          if (error.error && error.error.message) {
-            this.errorMessage = error.error.message;
-          } else {
-            this.errorMessage = 'Erreur lors de la suppression de l\'article. Veuillez réessayer.';
-          }
-        }
-      });
+    const token = this.authService.getToken();
+    if (!token) {
+      this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+      return;
     }
+
+    this.articleService.deleteArticle(article.id, token).subscribe({
+      next: () => {
+        this.successMessage = 'Article supprimé avec succès !';
+        this.loadUserArticles(); // Recharger la liste
+
+        // Effacer le message de succès après 3 secondes
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression:', error);
+        if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = 'Erreur lors de la suppression de l\'article. Veuillez réessayer.';
+        }
+      }
+    });
   }
 
   applyFilters(): void {
@@ -582,5 +588,103 @@ export class SellerDashboardComponent implements OnInit {
 
   goHome(): void {
     this.router.navigate(['/']);
+  }
+
+  loadNotifications(): void {
+    if (typeof window === 'undefined') return;
+
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id;
+
+      // Charger les notifications
+      this.notificationService.getNotifications(userId).subscribe({
+        next: (notifications) => {
+          this.notifications = notifications;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des notifications:', error);
+        }
+      });
+
+      // Charger le nombre de notifications non lues
+      this.notificationService.getUnreadCount(userId).subscribe({
+        next: (response) => {
+          this.unreadCount = response.count;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement du compteur de notifications:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors du décodage du token:', error);
+    }
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      // Marquer toutes les notifications comme lues quand on ouvre le panneau
+      this.markAllNotificationsAsRead();
+    }
+  }
+
+  markAllNotificationsAsRead(): void {
+    if (typeof window === 'undefined') return;
+
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id;
+
+      this.notificationService.markAllAsRead(userId).subscribe({
+        next: () => {
+          this.notifications.forEach(notification => notification.lue = true);
+          this.unreadCount = 0;
+        },
+        error: (error) => {
+          console.error('Erreur lors du marquage des notifications comme lues:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors du décodage du token:', error);
+    }
+  }
+
+  deleteNotification(notificationId: string): void {
+    if (typeof window === 'undefined') return;
+
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id;
+
+      this.notificationService.deleteNotification(notificationId, userId).subscribe({
+        next: () => {
+          this.notifications = this.notifications.filter(n => n.id !== notificationId);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression de la notification:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors du décodage du token:', error);
+    }
+  }
+
+  getNotificationIcon(type: string): string {
+    switch (type) {
+      case 'REJET_ARTICLE': return '❌';
+      case 'ARTICLE_APPROUVE': return '✅';
+      case 'ARTICLE_EXPIRE': return '⏰';
+      default: return '🔔';
+    }
   }
 }

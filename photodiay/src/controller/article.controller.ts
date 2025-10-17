@@ -193,8 +193,41 @@ export class ArticleController {
     if (!id) {
       return res.status(400).json({ error: "ID requis" });
     }
-    const article = await articleService.incrementVues(id);
-    res.json(article);
+
+    try {
+      // Récupérer l'utilisateur depuis le token (optionnel)
+      const user = (req as any).user;
+      const utilisateurId = user?.id;
+
+      // Récupérer l'IP du client
+      const ip = req.ip || req.connection.remoteAddress || 'unknown';
+
+      // Vérifier si on peut incrémenter la vue
+      const vueService = (await import('../service/vue.service.js')).VueService;
+      const vueSvc = new vueService();
+
+      const canIncrement = await vueSvc.canIncrementView(id, utilisateurId, ip);
+      if (!canIncrement) {
+        // Retourner l'article sans incrémenter
+        const article = await articleService.getById(id);
+        return res.json(article);
+      }
+
+      // Incrémenter les vues
+      const article = await articleService.incrementVues(id);
+
+      // Enregistrer la vue dans la table vueArticle
+      await vueSvc.addVue({
+        articleId: id,
+        utilisateurId: utilisateurId || null,
+        ip: utilisateurId ? null : ip
+      });
+
+      res.json(article);
+    } catch (error) {
+      console.error('Erreur lors de l\'incrémentation des vues:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
   }
 
   async getAllPending(req: Request, res: Response) {
@@ -221,8 +254,26 @@ export class ArticleController {
         return res.status(403).json({ error: "Accès non autorisé" });
       }
 
-      const articles = await articleService.getAllForAdmin();
-      res.json(articles);
+      // Récupérer les paramètres de pagination et recherche
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = (req.query.search as string) || '';
+      const offset = (page - 1) * limit;
+
+      const result = await articleService.getAllForAdmin(limit, offset, search);
+
+      // Calculer le nombre total de pages
+      const totalPages = Math.ceil(result.total / limit);
+
+      res.json({
+        articles: result.articles,
+        pagination: {
+          total: result.total,
+          totalPages,
+          currentPage: page,
+          limit
+        }
+      });
     } catch (error) {
       console.error('Erreur lors de la récupération des articles pour admin:', error);
       res.status(500).json({ error: "Erreur interne du serveur" });
@@ -242,6 +293,15 @@ export class ArticleController {
         return res.status(400).json({ error: "ID requis" });
       }
 
+      // Vérifier que l'article n'est pas déjà approuvé
+      const existingArticle = await articleService.getById(id);
+      if (!existingArticle) {
+        return res.status(404).json({ error: "Article non trouvé" });
+      }
+      if (existingArticle.statut === 'ACTIF') {
+        return res.status(400).json({ error: "L'article est déjà approuvé" });
+      }
+
       const article = await articleService.approveArticle(id);
       res.json(article);
     } catch (error) {
@@ -259,14 +319,120 @@ export class ArticleController {
       }
 
       const id = req.params.id;
+      const { motifRejet } = req.body;
+
       if (!id) {
         return res.status(400).json({ error: "ID requis" });
       }
 
-      const article = await articleService.rejectArticle(id);
+      if (!motifRejet || motifRejet.trim().length === 0) {
+        return res.status(400).json({ error: "Le motif de rejet est requis" });
+      }
+
+      // Vérifier que l'article n'est pas déjà rejeté
+      const existingArticle = await articleService.getById(id);
+      if (!existingArticle) {
+        return res.status(404).json({ error: "Article non trouvé" });
+      }
+      if (existingArticle.statut === 'REFUSE') {
+        return res.status(400).json({ error: "L'article est déjà rejeté" });
+      }
+
+      const article = await articleService.rejectArticle(id, motifRejet.trim());
       res.json(article);
     } catch (error) {
       console.error('Erreur lors du rejet d\'article:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async getExpiredArticles(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const articles = await articleService.getExpiredArticles();
+      res.json(articles);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des articles expirés:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async markArticleForDeletion(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const id = req.params.id;
+      if (!id) {
+        return res.status(400).json({ error: "ID requis" });
+      }
+
+      const article = await articleService.markArticleForDeletion(id);
+      res.json(article);
+    } catch (error) {
+      console.error('Erreur lors du marquage pour suppression:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async confirmArticleDeletion(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const id = req.params.id;
+      if (!id) {
+        return res.status(400).json({ error: "ID requis" });
+      }
+
+      await articleService.confirmArticleDeletion(id);
+      res.json({ message: "Article supprimé définitivement" });
+    } catch (error) {
+      console.error('Erreur lors de la suppression définitive:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async processExpiredArticles(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const articles = await articleService.processExpiredArticles();
+      res.json({ message: `${articles.length} articles expirés traités`, articles });
+    } catch (error) {
+      console.error('Erreur lors du traitement des articles expirés:', error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  }
+
+  async cleanupOldArticles(req: Request, res: Response) {
+    try {
+      // Vérifier que l'utilisateur est admin
+      const user = (req as any).user;
+      if (!user || user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Accès non autorisé" });
+      }
+
+      const days = parseInt(req.query.days as string) || 7;
+      const result = await articleService.cleanupOldArticles(days);
+      res.json({ message: `${result.count} articles supprimés (plus de ${days} jours)`, deletedCount: result.count });
+    } catch (error) {
+      console.error('Erreur lors du nettoyage des anciens articles:', error);
       res.status(500).json({ error: "Erreur interne du serveur" });
     }
   }

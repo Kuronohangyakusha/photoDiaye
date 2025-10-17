@@ -21,6 +21,7 @@ export declare class FavoriService {
             supprimeLe: Date | null;
             nombreVues: number;
             nombreInteractions: number;
+            motifRejet: string | null;
             vendeurId: string;
         };
     } & {

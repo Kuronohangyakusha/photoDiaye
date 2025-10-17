@@ -39,6 +39,7 @@ model Utilisateur {
   vues           VueArticle[]
   favoris        Favori[]
   signalements   Signalement[]
+  notifications  Notification[]
 
   @@map("utilisateurs")
 }
@@ -47,7 +48,7 @@ model Article {
   id                 String          @id @default(cuid())
   vendeur            Utilisateur     @relation(fields: [vendeurId], references: [id])
   vendeurId          String
-  vendeurTelephone   String          
+  vendeurTelephone   String
   titre              String
   description        String?
   prix               Float
@@ -60,8 +61,8 @@ model Article {
   supprimeLe         DateTime?
   nombreVues         Int             @default(0)
   nombreInteractions Int             @default(0)
+  motifRejet         String?         // motif du rejet par l'admin
 
- 
   vues               VueArticle[]
   favoris            Favori[]
   signalements       Signalement[]
@@ -118,4 +119,20 @@ model StatistiquesAdmin {
   misAJourLe        DateTime @updatedAt
 
   @@map("statistiques_admin")
+}
+
+model Notification {
+  id            String       @id @default(cuid())
+  utilisateur   Utilisateur  @relation(fields: [utilisateurId], references: [id])
+  utilisateurId String
+  titre         String
+  message       String
+  type          String       // 'REJET_ARTICLE', 'ARTICLE_APPROUVE', 'ARTICLE_EXPIRE', etc.
+  articleId     String?      // référence à l'article concerné
+  lue           Boolean      @default(false)
+  creeLe        DateTime     @default(now())
+
+  @@index([utilisateurId])
+  @@index([lue])
+  @@map("notifications")
 }
