@@ -1113,7 +1113,7 @@
     font-size: 13px;
   }
 }
-}
+
 
   .stats-grid {
     grid-template-columns: 1fr;
@@ -1154,7 +1154,6 @@
   .pagination {
     flex-wrap: wrap;
   }
-}
 
 /* History Section Styles */
 .history-controls {
